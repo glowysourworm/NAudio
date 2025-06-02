@@ -48,6 +48,13 @@ namespace NAudio.Wave
         event EventHandler<StoppedEventArgs> PlaybackStopped;
 
         /// <summary>
+        /// Event that fires during playback and is the responsibility of the playback thread
+        /// for UI consumption of events - to make it convenient to know what the current position
+        /// of the wave is. This may not be configured; and should fire once per second.
+        /// </summary>
+        event EventHandler<TimeSpan> PlaybackTick;
+
+        /// <summary>
         /// The WaveFormat this device is using for playback
         /// </summary>
         WaveFormat OutputWaveFormat { get; }

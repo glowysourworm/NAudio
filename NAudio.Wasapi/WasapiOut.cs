@@ -36,6 +36,12 @@ namespace NAudio.Wave
         public event EventHandler<StoppedEventArgs> PlaybackStopped;
 
         /// <summary>
+        /// Playback tick event - fires once per second (not configurable)
+        /// </summary>
+        public event EventHandler<TimeSpan> PlaybackTick;
+        private TimeSpan playbackLastTick;
+
+        /// <summary>
         /// WASAPI Out shared mode, default
         /// </summary>
         public WasapiOut() :
@@ -83,6 +89,9 @@ namespace NAudio.Wave
             latencyMilliseconds = latency;
             syncContext = SynchronizationContext.Current;
             OutputWaveFormat = audioClient.MixFormat; // allow the user to query the default format for shared mode streams
+
+            // Keeps track of last "tick event" firing
+            playbackLastTick = TimeSpan.Zero;
         }
 
         static MMDevice GetDefaultAudioEndpoint()
@@ -138,6 +147,25 @@ namespace NAudio.Wave
                     // If still playing
                     if (playbackState == PlaybackState.Playing)
                     {
+                        // Playback Tick Event
+                        if (playbackLastTick == TimeSpan.Zero)
+                            playbackLastTick = this.GetPositionTimeSpan();
+
+                        else
+                        {
+                            var currentTick = this.GetPositionTimeSpan();
+                            var delta = currentTick.TotalMilliseconds - playbackLastTick.TotalMilliseconds;
+
+                            // This could be configured. The goal was to provide a simple and efficient method to 
+                            // get the current position without starting another thread or timer in the user code.
+                            if (delta >= 1000)
+                            {
+                                playbackLastTick = currentTick;
+                                if (this.PlaybackTick != null)
+                                    this.PlaybackTick(this, playbackLastTick);
+                            }
+                        }
+
                         // See how much buffer space is available.
                         int numFramesPadding;
                         if (isUsingEventSync)
@@ -168,6 +196,10 @@ namespace NAudio.Wave
                     // immediately
                     Thread.Sleep(isUsingEventSync ? latencyMilliseconds : latencyMilliseconds / 2);
                 }
+
+                // Reset the playback last tick to zero
+                playbackLastTick = TimeSpan.Zero;
+
                 audioClient.Stop();
                 // set if we got here by reaching the end
                 playbackState = PlaybackState.Stopped;

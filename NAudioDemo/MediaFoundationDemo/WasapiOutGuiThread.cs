@@ -32,6 +32,12 @@ namespace NAudioDemo.MediaFoundationDemo
         public event EventHandler<StoppedEventArgs> PlaybackStopped;
 
         /// <summary>
+        /// Playback tick event - fires once per second (not configurable)
+        /// </summary>
+        public event EventHandler<TimeSpan> PlaybackTick;
+        private TimeSpan playbackLastTick;
+
+        /// <summary>
         /// WASAPI Out using default audio endpoint
         /// </summary>
         public WasapiOutGuiThread() :
@@ -47,6 +53,9 @@ namespace NAudioDemo.MediaFoundationDemo
         /// <param name="latency">Latency in milliseconds</param>
         public WasapiOutGuiThread(MMDevice device, AudioClientShareMode shareMode, int latency)
         {
+            // Keeps track of last "tick event" firing
+            playbackLastTick = TimeSpan.Zero;
+
             audioClient = device.AudioClient;
             outputFormat = audioClient.MixFormat;
             this.shareMode = shareMode;
@@ -60,6 +69,25 @@ namespace NAudioDemo.MediaFoundationDemo
         {
             if (playbackState == PlaybackState.Playing)
             {
+                // Playback Tick Event
+                if (playbackLastTick == TimeSpan.Zero)
+                    playbackLastTick = TimeSpan.FromMilliseconds(timer.Interval);
+
+                else
+                {
+                    var currentTick = TimeSpan.FromMilliseconds(timer.Interval + playbackLastTick.TotalMilliseconds);
+                    var delta = currentTick.TotalMilliseconds - playbackLastTick.TotalMilliseconds;
+
+                    // This could be configured. The goal was to provide a simple and efficient method to 
+                    // get the current position without starting another thread or timer in the user code.
+                    if (delta >= 1000)
+                    {
+                        playbackLastTick = currentTick;
+                        if (this.PlaybackTick != null)
+                            this.PlaybackTick(this, playbackLastTick);
+                    }
+                }
+
                 try
                 {
                     // See how much buffer space is available.
@@ -102,6 +130,9 @@ namespace NAudioDemo.MediaFoundationDemo
 
         private void RaisePlaybackStopped(Exception e)
         {
+            // Reset the playback last tick to zero
+            playbackLastTick = TimeSpan.Zero;
+
             var handler = PlaybackStopped;
             if (handler != null)
             {

@@ -19,6 +19,12 @@ namespace NAudio.Wave
         /// </summary>
         public event EventHandler<StoppedEventArgs> PlaybackStopped;
 
+        /// <summary>
+        /// Playback tick event - fires once per second (not configurable)
+        /// </summary>
+        public event EventHandler<TimeSpan> PlaybackTick;
+        private TimeSpan playbackLastTick;
+
         private PlaybackState playbackState;
         private WaveFormat waveFormat;
         private int samplesTotalSize;
@@ -117,6 +123,9 @@ namespace NAudio.Wave
             this.device = device;
             this.desiredLatency = latency;
             this.syncContext = SynchronizationContext.Current;
+
+            // Keeps track of last "tick event" firing
+            playbackLastTick = TimeSpan.Zero;
         }
 
         /// <summary>
@@ -474,6 +483,26 @@ namespace NAudio.Wave
                                 // Only carry on playing if we can!
                                 if (Feed(samplesFrameSize) == 0)
                                 {
+                                    // Playback Tick Event---------------
+                                    if (playbackLastTick == TimeSpan.Zero)
+                                        playbackLastTick = this.PlaybackPosition;
+
+                                    else
+                                    {
+                                        var currentTick = this.PlaybackPosition;
+                                        var delta = currentTick.TotalMilliseconds - playbackLastTick.TotalMilliseconds;
+
+                                        // This could be configured. The goal was to provide a simple and efficient method to 
+                                        // get the current position without starting another thread or timer in the user code.
+                                        if (delta >= 1000)
+                                        {
+                                            playbackLastTick = currentTick;
+                                            if (this.PlaybackTick != null)
+                                                this.PlaybackTick(this, playbackLastTick);
+                                        }
+                                    }
+                                    // -----------------------------------
+
                                     StopPlayback();
                                     lPlaybackHalted = true;
                                     lContinuePlayback = false;
@@ -570,6 +599,9 @@ namespace NAudio.Wave
                     Marshal.ReleaseComObject(directSound);
                     directSound = null;
                 }
+
+                // Reset the playback last tick to zero (I'm in the lock! ^_^)
+                playbackLastTick = TimeSpan.Zero;
             }
         }
 

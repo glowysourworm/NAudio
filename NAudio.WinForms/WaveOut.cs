@@ -2,6 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Threading;
+using NAudio.Utils;
 
 namespace NAudio.Wave 
 {
@@ -24,6 +25,12 @@ namespace NAudio.Wave
         /// Indicates playback has stopped automatically
         /// </summary>
         public event EventHandler<StoppedEventArgs> PlaybackStopped;
+
+        /// <summary>
+        /// Playback tick event - fires once per second (not configurable)
+        /// </summary>
+        public event EventHandler<TimeSpan> PlaybackTick;
+        private TimeSpan playbackLastTick;
 
         /// <summary>
         /// Retrieves the capabilities of a waveOut device
@@ -89,6 +96,9 @@ namespace NAudio.Wave
         /// </summary>
         public WaveOut(WaveCallbackInfo callbackInfo)
         {
+            // Keeps track of last "tick event" firing
+            playbackLastTick = TimeSpan.Zero;
+
             syncContext = SynchronizationContext.Current;
             // set default values up
             DesiredLatency = 300;
@@ -339,6 +349,25 @@ namespace NAudio.Wave
                 // check that we're not here through pressing stop
                 if (PlaybackState == PlaybackState.Playing)
                 {
+                    // Playback Tick Event
+                    if (playbackLastTick == TimeSpan.Zero)
+                        playbackLastTick = this.GetPositionTimeSpan();
+
+                    else
+                    {
+                        var currentTick = this.GetPositionTimeSpan();
+                        var delta = currentTick.TotalMilliseconds - playbackLastTick.TotalMilliseconds;
+
+                        // This could be configured. The goal was to provide a simple and efficient method to 
+                        // get the current position without starting another thread or timer in the user code.
+                        if (delta >= 1000)
+                        {
+                            playbackLastTick = currentTick;
+                            if (this.PlaybackTick != null)
+                                this.PlaybackTick(this, playbackLastTick);
+                        }
+                    }
+
                     // to avoid deadlocks in Function callback mode,
                     // we lock round this whole thing, which will include the
                     // reading from the stream.
@@ -380,6 +409,9 @@ namespace NAudio.Wave
 
         private void RaisePlaybackStoppedEvent(Exception e)
         {
+            // Reset the playback last tick to zero
+            playbackLastTick = TimeSpan.Zero;
+
             var handler = PlaybackStopped;
             if (handler != null)
             {

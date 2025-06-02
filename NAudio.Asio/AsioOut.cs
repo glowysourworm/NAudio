@@ -35,6 +35,12 @@ namespace NAudio.Wave
         public event EventHandler<StoppedEventArgs> PlaybackStopped;
 
         /// <summary>
+        /// Playback tick event - fires once per second (not configurable)
+        /// </summary>
+        public event EventHandler<TimeSpan> PlaybackTick;
+        private TimeSpan playbackLastTick;
+
+        /// <summary>
         /// When recording, fires whenever recorded audio is available
         /// </summary>
         public event EventHandler<AsioAudioAvailableEventArgs> AudioAvailable;
@@ -60,6 +66,10 @@ namespace NAudio.Wave
         public AsioOut(string driverName)
         {
             this.syncContext = SynchronizationContext.Current;
+
+            // Keeps track of last "tick event" firing
+            playbackLastTick = TimeSpan.Zero;
+
             InitFromName(driverName);
         }
 

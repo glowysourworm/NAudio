@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Threading;
 using System.Runtime.InteropServices;
+using NAudio.Utils;
 
 // ReSharper disable once CheckNamespace
 namespace NAudio.Wave
@@ -23,6 +24,12 @@ namespace NAudio.Wave
         /// Indicates playback has stopped automatically
         /// </summary>
         public event EventHandler<StoppedEventArgs> PlaybackStopped;
+
+        /// <summary>
+        /// Playback tick event - fires once per second (not configurable)
+        /// </summary>
+        public event EventHandler<TimeSpan> PlaybackTick;
+        private TimeSpan playbackLastTick;
 
         /// <summary>
         /// Gets or sets the desired latency in milliseconds
@@ -49,6 +56,9 @@ namespace NAudio.Wave
         /// </summary>
         public WaveOutEvent()
         {
+            // Keeps track of last "tick event" firing
+            playbackLastTick = TimeSpan.Zero;
+
             syncContext = SynchronizationContext.Current;
             if (syncContext != null &&
                 ((syncContext.GetType().Name == "LegacyAspNetSynchronizationContext") ||
@@ -160,6 +170,25 @@ namespace NAudio.Wave
                 // requeue any buffers returned to us
                 if (playbackState == PlaybackState.Playing)
                 {
+                    // Playback Tick Event
+                    if (playbackLastTick == TimeSpan.Zero)
+                        playbackLastTick = this.GetPositionTimeSpan();
+
+                    else
+                    {
+                        var currentTick = this.GetPositionTimeSpan();
+                        var delta = currentTick.TotalMilliseconds - playbackLastTick.TotalMilliseconds;
+
+                        // This could be configured. The goal was to provide a simple and efficient method to 
+                        // get the current position without starting another thread or timer in the user code.
+                        if (delta >= 1000)
+                        {
+                            playbackLastTick = currentTick;
+                            if (this.PlaybackTick != null)
+                                this.PlaybackTick(this, playbackLastTick);
+                        }
+                    }
+
                     int queued = 0;
                     foreach (var buffer in buffers)
                     {
@@ -338,6 +367,9 @@ namespace NAudio.Wave
 
         private void RaisePlaybackStoppedEvent(Exception e)
         {
+            // Reset the playback last tick to zero
+            playbackLastTick = TimeSpan.Zero;
+
             var handler = PlaybackStopped;
             if (handler != null)
             {
