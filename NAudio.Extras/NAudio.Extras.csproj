@@ -14,6 +14,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>2.2.1</Version>
     <PackageIcon>naudio-icon.png</PackageIcon>
+    <PackageOutputPath>$(NugetLocalPath)</PackageOutputPath>
   </PropertyGroup>
 
   <ItemGroup>

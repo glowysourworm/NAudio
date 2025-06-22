@@ -40,6 +40,7 @@ namespace NAudio.Wave
         /// </summary>
         public event EventHandler<TimeSpan> PlaybackTick;
         private TimeSpan playbackLastTick;
+        public int PlaybackTickInterval { get; set; }
 
         /// <summary>
         /// WASAPI Out shared mode, default
@@ -92,6 +93,7 @@ namespace NAudio.Wave
 
             // Keeps track of last "tick event" firing
             playbackLastTick = TimeSpan.Zero;
+            this.PlaybackTickInterval = 1;
         }
 
         static MMDevice GetDefaultAudioEndpoint()
@@ -158,7 +160,7 @@ namespace NAudio.Wave
 
                             // This could be configured. The goal was to provide a simple and efficient method to 
                             // get the current position without starting another thread or timer in the user code.
-                            if (delta >= 1000)
+                            if (delta >= this.PlaybackTickInterval)
                             {
                                 playbackLastTick = currentTick;
                                 if (this.PlaybackTick != null)

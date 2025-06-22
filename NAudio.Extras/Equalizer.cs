@@ -39,9 +39,9 @@ namespace NAudio.Extras
                 for (int n = 0; n < channels; n++)
                 {
                     if (filters[n, bandIndex] == null)
-                        filters[n, bandIndex] = BiQuadFilter.PeakingEQ(sourceProvider.WaveFormat.SampleRate, band.Frequency, band.Bandwidth, band.Gain);
+                        filters[n, bandIndex] = BiQuadFilter.PeakingEQ(sourceProvider.WaveFormat.SampleRate, band.GetFrequency(), band.GetBandwidth(), band.GetGain());
                     else
-                        filters[n, bandIndex].SetPeakingEq(sourceProvider.WaveFormat.SampleRate, band.Frequency, band.Bandwidth, band.Gain);
+                        filters[n, bandIndex].SetPeakingEq(sourceProvider.WaveFormat.SampleRate, band.GetFrequency(), band.GetBandwidth(), band.GetGain());
                 }
             }
         }
@@ -79,7 +79,13 @@ namespace NAudio.Extras
                 
                 for (int band = 0; band < bandCount; band++)
                 {
-                    buffer[offset + n] = filters[ch, band].Transform(buffer[offset + n]);
+                    var output = filters[ch, band].Transform(buffer[offset + n]);
+
+                    // Set sample output
+                    buffer[offset + n] = output;
+
+                    // Update Equalizer Band's Moving Average
+                    this.bands[band].UpdateLevelAverage(output, ch);
                 }
             }
             return samplesRead;

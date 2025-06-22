@@ -39,6 +39,7 @@ namespace NAudio.Wave
         /// </summary>
         public event EventHandler<TimeSpan> PlaybackTick;
         private TimeSpan playbackLastTick;
+        public int PlaybackTickInterval { get; set; }
 
         /// <summary>
         /// When recording, fires whenever recorded audio is available
@@ -69,6 +70,7 @@ namespace NAudio.Wave
 
             // Keeps track of last "tick event" firing
             playbackLastTick = TimeSpan.Zero;
+            this.PlaybackTickInterval = 1;
 
             InitFromName(driverName);
         }
@@ -79,6 +81,10 @@ namespace NAudio.Wave
         /// <param name="driverIndex">Device number (zero based)</param>
         public AsioOut(int driverIndex)
         {
+            // Keeps track of last "tick event" firing
+            playbackLastTick = TimeSpan.Zero;
+            this.PlaybackTickInterval = 1;
+
             this.syncContext = SynchronizationContext.Current; 
             String[] names = GetDriverNames();
             if (names.Length == 0)

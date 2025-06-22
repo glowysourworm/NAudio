@@ -108,6 +108,8 @@ namespace NAudio.Wave
             return frame;
         }
 
+        
+
 
         /// <summary>
         /// Constructs an MP3 frame

@@ -28,16 +28,16 @@ namespace NAudioWpfDemo.EqualizationDemo
             StopCommand = new DelegateCommand(Stop);
             PauseCommand = new DelegateCommand(Pause);
             bands = new EqualizerBand[]
-                    {
-                        new EqualizerBand {Bandwidth = 0.8f, Frequency = 100, Gain = 0},
-                        new EqualizerBand {Bandwidth = 0.8f, Frequency = 200, Gain = 0},
-                        new EqualizerBand {Bandwidth = 0.8f, Frequency = 400, Gain = 0},
-                        new EqualizerBand {Bandwidth = 0.8f, Frequency = 800, Gain = 0},
-                        new EqualizerBand {Bandwidth = 0.8f, Frequency = 1200, Gain = 0},
-                        new EqualizerBand {Bandwidth = 0.8f, Frequency = 2400, Gain = 0},
-                        new EqualizerBand {Bandwidth = 0.8f, Frequency = 4800, Gain = 0},
-                        new EqualizerBand {Bandwidth = 0.8f, Frequency = 9600, Gain = 0},
-                    };
+            {
+                new EqualizerBand(100, 0, 0.8f, 2),
+                new EqualizerBand(200, 0, 0.8f, 2),
+                new EqualizerBand(400, 0, 0.8f, 2),
+                new EqualizerBand(800, 0, 0.8f, 2),
+                new EqualizerBand(1200, 0, 0.8f, 2),
+                new EqualizerBand(240, 0, 0.8f, 2),
+                new EqualizerBand(4800, 0, 0.8f, 2),
+                new EqualizerBand(9600, 0, 0.8f, 2),
+            };
             this.PropertyChanged += OnPropertyChanged;
         }
 
@@ -52,12 +52,12 @@ namespace NAudioWpfDemo.EqualizationDemo
 
         public float Band1
         {
-            get => bands[0].Gain;
+            get => bands[0].GetGain();
             set
             {
-                if (bands[0].Gain != value)
+                if (bands[0].GetGain() != value)
                 {
-                    bands[0].Gain = value;
+                    bands[0].UpdateParameters(value);
                     OnPropertyChanged("Band1");
                 }
             }
@@ -65,12 +65,12 @@ namespace NAudioWpfDemo.EqualizationDemo
 
         public float Band2
         {
-            get => bands[1].Gain;
+            get => bands[1].GetGain();
             set
             {
-                if (bands[1].Gain != value)
+                if (bands[1].GetGain() != value)
                 {
-                    bands[1].Gain = value;
+                    bands[1].UpdateParameters(value);
                     OnPropertyChanged("Band2");
                 }
             }
@@ -78,12 +78,12 @@ namespace NAudioWpfDemo.EqualizationDemo
 
         public float Band3
         {
-            get => bands[2].Gain;
+            get => bands[2].GetGain();
             set
             {
-                if (bands[2].Gain != value)
+                if (bands[2].GetGain() != value)
                 {
-                    bands[2].Gain = value;
+                    bands[2].UpdateParameters(value);
                     OnPropertyChanged("Band3");
                 }
             }
@@ -91,12 +91,12 @@ namespace NAudioWpfDemo.EqualizationDemo
 
         public float Band4
         {
-            get => bands[3].Gain;
+            get => bands[3].GetGain();
             set
             {
-                if (bands[3].Gain != value)
+                if (bands[3].GetGain() != value)
                 {
-                    bands[3].Gain = value;
+                    bands[3].UpdateParameters(value);
                     OnPropertyChanged("Band4");
                 }
             }
@@ -104,12 +104,12 @@ namespace NAudioWpfDemo.EqualizationDemo
 
         public float Band5
         {
-            get => bands[4].Gain;
+            get => bands[4].GetGain();
             set
             {
-                if (bands[4].Gain != value)
+                if (bands[4].GetGain() != value)
                 {
-                    bands[4].Gain = value;
+                    bands[4].UpdateParameters(value);
                     OnPropertyChanged("Band5");
                 }
             }
@@ -117,12 +117,12 @@ namespace NAudioWpfDemo.EqualizationDemo
 
         public float Band6
         {
-            get => bands[5].Gain;
+            get => bands[5].GetGain();
             set
             {
-                if (bands[5].Gain != value)
+                if (bands[5].GetGain() != value)
                 {
-                    bands[5].Gain = value;
+                    bands[5].UpdateParameters(value);
                     OnPropertyChanged("Band6");
                 }
             }
@@ -131,12 +131,12 @@ namespace NAudioWpfDemo.EqualizationDemo
 
         public float Band7
         {
-            get => bands[6].Gain;
+            get => bands[6].GetGain();
             set
             {
-                if (bands[6].Gain != value)
+                if (bands[6].GetGain() != value)
                 {
-                    bands[6].Gain = value;
+                    bands[6].UpdateParameters(value);
                     OnPropertyChanged("Band7");
                 }
             }
@@ -144,13 +144,13 @@ namespace NAudioWpfDemo.EqualizationDemo
 
         public float Band8
         {
-            get => bands[7].Gain;
+            get => bands[7].GetGain();
             set
             {
-                if (bands[7].Gain != value)
+                if (bands[7].GetGain() != value)
                 {
-                    bands[7].Gain = value;
-                    OnPropertyChanged("Band7");
+                    bands[7].UpdateParameters(value);
+                    OnPropertyChanged("Band8");
                 }
             }
         }

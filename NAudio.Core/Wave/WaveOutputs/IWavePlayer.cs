@@ -50,9 +50,14 @@ namespace NAudio.Wave
         /// <summary>
         /// Event that fires during playback and is the responsibility of the playback thread
         /// for UI consumption of events - to make it convenient to know what the current position
-        /// of the wave is. This may not be configured; and should fire once per second.
+        /// of the wave is. This may be configured using the PlaybackTickInterval property.
         /// </summary>
         event EventHandler<TimeSpan> PlaybackTick;
+
+        /// <summary>
+        /// This is the number of milliseconds to wait between firing playback tick events.
+        /// </summary>
+        int PlaybackTickInterval { get; set; }
 
         /// <summary>
         /// The WaveFormat this device is using for playback

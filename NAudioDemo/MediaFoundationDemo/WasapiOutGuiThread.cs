@@ -36,6 +36,7 @@ namespace NAudioDemo.MediaFoundationDemo
         /// </summary>
         public event EventHandler<TimeSpan> PlaybackTick;
         private TimeSpan playbackLastTick;
+        public int PlaybackTickInterval { get; set; }
 
         /// <summary>
         /// WASAPI Out using default audio endpoint
@@ -55,6 +56,7 @@ namespace NAudioDemo.MediaFoundationDemo
         {
             // Keeps track of last "tick event" firing
             playbackLastTick = TimeSpan.Zero;
+            this.PlaybackTickInterval = 1;
 
             audioClient = device.AudioClient;
             outputFormat = audioClient.MixFormat;
@@ -80,7 +82,7 @@ namespace NAudioDemo.MediaFoundationDemo
 
                     // This could be configured. The goal was to provide a simple and efficient method to 
                     // get the current position without starting another thread or timer in the user code.
-                    if (delta >= 1000)
+                    if (delta >= this.PlaybackTickInterval)
                     {
                         playbackLastTick = currentTick;
                         if (this.PlaybackTick != null)
