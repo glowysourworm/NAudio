@@ -8,7 +8,7 @@ namespace NAudio.Extras
     /// <summary>
     /// Demo sample provider that performs FFTs
     /// </summary>
-    public class SampleAggregator : ISampleProvider
+    public class SampleAggregator : ISampleProvider, IDisposable
     {
         /// <summary>
         /// Raised to indicate the maximum volume level in this period
@@ -40,6 +40,8 @@ namespace NAudio.Extras
         private readonly ISampleProvider source;
 
         private readonly int channels;
+
+        private bool _disposed = false;
 
         /// <summary>
         /// Creates a new SampleAggregator
@@ -110,6 +112,9 @@ namespace NAudio.Extras
         /// </summary>
         public int Read(float[] buffer, int offset, int count)
         {
+            if (_disposed)
+                return 0;
+
             var samplesRead = source.Read(buffer, offset, count);
 
             for (int n = 0; n < samplesRead; n+=channels)
@@ -117,6 +122,11 @@ namespace NAudio.Extras
                 Add(buffer[n+offset]);
             }
             return samplesRead;
+        }
+
+        public void Dispose()
+        {
+            _disposed = true;
         }
     }
 

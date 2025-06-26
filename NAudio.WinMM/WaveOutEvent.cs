@@ -179,7 +179,7 @@ namespace NAudio.Wave
                     else
                     {
                         var currentTick = this.GetPositionTimeSpan();
-                        var delta = currentTick.TotalMilliseconds - playbackLastTick.TotalMilliseconds;
+                        var delta = Math.Abs(currentTick.TotalMilliseconds - playbackLastTick.TotalMilliseconds);
 
                         // This could be configured. The goal was to provide a simple and efficient method to 
                         // get the current position without starting another thread or timer in the user code.
@@ -187,7 +187,7 @@ namespace NAudio.Wave
                         {
                             playbackLastTick = currentTick;
                             if (this.PlaybackTick != null)
-                                this.PlaybackTick(this, playbackLastTick);
+                                this.PlaybackTick(this, currentTick);
                         }
                     }
 
