@@ -78,6 +78,9 @@ namespace NAudio.Extras
 
         private void Add(float value)
         {
+            if (_disposed)
+                return;
+
             if (PerformFFT && FftCalculated != null)
             {
                 fftBuffer[fftPos].X = (float)(value * FastFourierTransform.HammingWindow(fftPos, fftLength));
