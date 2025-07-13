@@ -13,6 +13,7 @@
     <Copyright>© Mark Heath 2023</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>naudio-icon.png</PackageIcon>
+    <PackageOutputPath>$(NugetLocalPath)</PackageOutputPath>
   </PropertyGroup>
 
 	<!-- needed for perfomance profiling unit tests -->

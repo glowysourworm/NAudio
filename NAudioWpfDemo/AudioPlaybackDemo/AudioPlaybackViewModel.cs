@@ -26,8 +26,6 @@ namespace NAudioWpfDemo.AudioPlaybackDemo
             this.selectedVisualization = this.visualizations.FirstOrDefault();
 
             this.audioPlayback = new AudioPlayback();
-            audioPlayback.MaximumCalculated += audioGraph_MaximumCalculated;
-            audioPlayback.FftCalculated += audioGraph_FftCalculated;
 
             PlayCommand = new DelegateCommand(Play);
             OpenFileCommand = new DelegateCommand(OpenFile);
@@ -67,21 +65,23 @@ namespace NAudioWpfDemo.AudioPlaybackDemo
             }
         }
 
-        void audioGraph_FftCalculated(object sender, FftEventArgs e)
-        {
-            if (this.SelectedVisualization != null)
-            {
-                this.SelectedVisualization.OnFftCalculated(e.Result);
-            }
-        }
+        // TODO: Add DispatcherTimer to poll the fft result
 
-        void audioGraph_MaximumCalculated(object sender, MaxSampleEventArgs e)
-        {
-            if (this.SelectedVisualization != null)
-            {
-                this.SelectedVisualization.OnMaxCalculated(e.MinSample, e.MaxSample);
-            }
-        }
+        //void audioGraph_FftCalculated(object sender, FftEventArgs e)
+        //{
+        //    if (this.SelectedVisualization != null)
+        //    {
+        //        this.SelectedVisualization.OnFftCalculated(e.Result);
+        //    }
+        //}
+
+        //void audioGraph_MaximumCalculated(object sender, MaxSampleEventArgs e)
+        //{
+        //    if (this.SelectedVisualization != null)
+        //    {
+        //        this.SelectedVisualization.OnMaxCalculated(e.MinSample, e.MaxSample);
+        //    }
+        //}
 
         private void OpenFile()
         {

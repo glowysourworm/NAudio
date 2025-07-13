@@ -10,10 +10,6 @@ namespace NAudioWpfDemo.AudioPlaybackDemo
         private IWavePlayer playbackDevice;
         private WaveStream fileStream;
 
-        public event EventHandler<FftEventArgs> FftCalculated;
-
-        public event EventHandler<MaxSampleEventArgs> MaximumCalculated;
-
         public void Load(string fileName)
         {
             Stop();
@@ -35,10 +31,6 @@ namespace NAudioWpfDemo.AudioPlaybackDemo
                 var inputStream = new AudioFileReader(fileName);
                 fileStream = inputStream;
                 var aggregator = new SampleAggregator(inputStream);
-                aggregator.NotificationCount = inputStream.WaveFormat.SampleRate / 100;
-                aggregator.PerformFFT = true;
-                aggregator.FftCalculated += (s, a) => FftCalculated?.Invoke(this, a);
-                aggregator.MaximumCalculated += (s, a) => MaximumCalculated?.Invoke(this, a); 
                 playbackDevice.Init(aggregator);
             }
             catch (Exception e)

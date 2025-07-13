@@ -17,5 +17,14 @@ namespace NAudio.Extras
         /// Bandwidth
         /// </summary>
         public float Bandwidth { get; set; }
+
+        public EqualizerBand()
+        { }
+        public EqualizerBand(float frequency, float gain, float bandwidth)
+        {
+            this.Frequency = frequency;
+            this.Gain = gain;
+            this.Bandwidth = bandwidth;
+        }
     }
 }
